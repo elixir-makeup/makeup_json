@@ -22,9 +22,7 @@ defmodule MakeupJson.MixProject do
   defp deps do
     [
       {:makeup, "~> 1.0"},
-      # {:makeup_elixir, "~> 0.15"},
       {:nimble_parsec, "~> 1.1"},
-      # {:jason, "~> 1.2"},
       # Generate unicode character lists
       {:unicode_set, "~> 1.1.0", only: :dev},
       # Benchmarking utilities
