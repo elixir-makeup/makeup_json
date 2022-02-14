@@ -24,15 +24,6 @@ defmodule Makeup.Lexers.JsonLexer do
   # Numbers
   digits = ascii_string([?0..?9], min: 1)
 
-  # bin_digits = ascii_string([?0..?1], min: 1)
-  # hex_digits = ascii_string([?0..?9, ?a..?f, ?A..?F], min: 1)
-  # oct_digits = ascii_string([?0..?7], min: 1)
-
-  # # Tokens for the lexer
-  # number_bin = string("0b") |> concat(bin_digits) |> token(:number_bin)
-  # number_oct = string("0o") |> concat(hex_digits) |> token(:number_oct)
-  # number_hex = string("0x") |> concat(oct_digits) |> token(:number_hex)
-
   integer = optional(string("-")) |> concat(digits)
   # Base 10
   number_integer = token(integer, :number_integer)
@@ -136,10 +127,6 @@ defmodule Makeup.Lexers.JsonLexer do
       multi_line_comment_root,
       object,
       array,
-      # Numbers
-      # number_bin,
-      # number_oct,
-      # number_hex,
       # Floats must come before integers
       number_float,
       number_float2,
@@ -228,7 +215,7 @@ defmodule Makeup.Lexers.JsonLexer do
 
   @impl Makeup.Lexer
   defgroupmatcher(:match_groups,
-    list: [
+    array: [
       open: [
         [{:punctuation, %{language: :json}, "["}]
       ],
@@ -236,7 +223,7 @@ defmodule Makeup.Lexers.JsonLexer do
         [{:punctuation, %{language: :json}, "]"}]
       ]
     ],
-    tuple: [
+    object: [
       open: [
         [{:punctuation, %{language: :json}, "{"}]
       ],
@@ -250,7 +237,7 @@ defmodule Makeup.Lexers.JsonLexer do
   @impl Makeup.Lexer
   def lex(text, opts \\ []) do
     group_prefix = Keyword.get(opts, :group_prefix, random_prefix(10))
-    match_groups = Keyword.get(opts, :match_groups, true)
+    match_groups? = Keyword.get(opts, :match_groups, true)
     {:ok, tokens, "", _, _, _} = root("\n" <> text)
 
     tokens =
@@ -258,7 +245,7 @@ defmodule Makeup.Lexers.JsonLexer do
       |> remove_initial_newline()
       |> postprocess([])
 
-    case match_groups do
+    case match_groups? do
       true ->
         match_groups(tokens, group_prefix)
 
