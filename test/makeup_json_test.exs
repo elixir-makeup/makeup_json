@@ -95,6 +95,69 @@ defmodule MakeupJsonTest do
     end
   end
 
+  test "Escape sequences in JSON object keys are parsed correctly" do
+    strings = [
+      "\"",
+      "\\",
+      "/",
+      "b",
+      "f",
+      "n",
+      "r",
+      "t",
+      "u0123",
+      "u4567",
+      "u89ab",
+      "ucdef",
+      "uABCD",
+      "uEF01"
+    ]
+
+    for string <- strings do
+      tokens = JsonLexer.lex(~s({"\\#{string}": 1}))
+
+      assert length(tokens) == 8
+      assert {:name_tag, _, ["\""]} = Enum.at(tokens, 1)
+      assert {:string_escape, _, _} = Enum.at(tokens, 2)
+      assert {:name_tag, _, ["\""]} = Enum.at(tokens, 3)
+
+      # TODO: What this should be, according to the pygments tests:
+      # https://github.com/pygments/pygments/blob/master/tests/test_data.py#L120
+      #
+      # assert length(tokens) == 6
+      # assert {:name_tag, _, ^string} = Enum.at(tokens, 1)
+    end
+  end
+
+  test "Escape sequences in JSON string values are parsed correctly" do
+    strings = [
+      "\"",
+      "\\",
+      "/",
+      "b",
+      "f",
+      "n",
+      "r",
+      "t",
+      "u0123",
+      "u4567",
+      "u89ab",
+      "ucdef",
+      "uABCD",
+      "uEF01"
+    ]
+
+    for string <- strings do
+      assert [{:string_double, _, ["\""]}, {:string_escape, _, _}, {:string_double, _, ["\""]}] =
+               JsonLexer.lex(~s("\\#{string}"))
+
+      # TODO: What this should be, according to the pygments tests:
+      # https://github.com/pygments/pygments/blob/master/tests/test_data.py#L145
+      #
+      # assert [{:string_double, _, ^string}] = JsonLexer.lex(~s("\\#{string}"))
+    end
+  end
+
   test "Single-line comments are tokenized correctly" do
     text = ~s({"a//b"//C1\n:123/////C2\n}\n// // C3)
     tokens = JsonLexer.lex(text)
@@ -123,6 +186,7 @@ defmodule MakeupJsonTest do
              5
 
     # TODO: What those probably should be(?):
+    # https://github.com/pygments/pygments/blob/master/tests/test_data.py#L179
     #
     # assert {:comment_multiline, _, "/** / **/"} = Enum.at(tokens, 0)
     # assert {:comment_multiline, _, "/* \n */"} = Enum.at(tokens, 3)
