@@ -168,4 +168,11 @@ defmodule MakeupJsonTest do
     # Input and output texts must match!
     assert tokens |> Enum.map(fn {_, _, content} -> to_string(content) end) |> Enum.join() == text
   end
+
+  test "Unfinished or unclosed single-line comments are parsed as errors" do
+    assert [{:error, _, ?/}] = JsonLexer.lex("/")
+    assert [_number, {:error, _, ?/}] = JsonLexer.lex("1/")
+    assert [{:error, _, ?/}, _number] = JsonLexer.lex("/1")
+    assert [_string, {:error, _, ?/}] = JsonLexer.lex("\"\"/")
+  end
 end
