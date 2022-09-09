@@ -131,4 +131,18 @@ defmodule MakeupJsonTest do
       assert type == :whitespace
     end
   end
+
+  test "Single-line comments are tokenized correctly" do
+    text = ~s({"a//b"//C1\n:123/////C2\n}\n// // C3)
+    tokens = JsonLexer.lex(text)
+
+    assert {:comment_single, _, ["//", "C", "1"]} = Enum.at(tokens, 2)
+    assert {:comment_single, _, ["//", "/", "/", "/", "C", "2"]} = Enum.at(tokens, 6)
+    assert {:comment_single, _, ["//", " ", "/", "/", " ", "C", "3"]} = Enum.at(tokens, 10)
+
+    assert tokens |> Enum.filter(fn {type, _, _} -> type == :comment_single end) |> length() == 3
+
+    # Input and output texts must match!
+    assert tokens |> Enum.map(fn {_, _, content} -> to_string(content) end) |> Enum.join() == text
+  end
 end
