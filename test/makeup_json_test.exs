@@ -175,4 +175,15 @@ defmodule MakeupJsonTest do
     assert [{:error, _, ?/}, _number] = JsonLexer.lex("/1")
     assert [_string, {:error, _, ?/}] = JsonLexer.lex("\"\"/")
   end
+
+  # TODO:
+  @tag :skip
+  test "Unfinished or unclosed multi-line comments are parsed as errors" do
+    assert [{:error, _, _}] = JsonLexer.lex("/*")
+    assert [{:error, _, _}] = JsonLexer.lex("/**")
+    assert [{:error, _, _}] = JsonLexer.lex("/*/")
+    assert [_number, {:error, _, _}] = JsonLexer.lex("1/*")
+    assert [_string, {:error, _, _}] = JsonLexer.lex("\"\"/*")
+    assert [_string, {:error, _, _}] = JsonLexer.lex("\"\"/**")
+  end
 end
