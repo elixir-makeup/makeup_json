@@ -213,4 +213,57 @@ defmodule MakeupJsonTest do
     assert [_string, {:error, _, _}] = JsonLexer.lex("\"\"/*")
     assert [_string, {:error, _, _}] = JsonLexer.lex("\"\"/**")
   end
+
+  # TODO: Remove when there's no JSON-LD support planned
+  @tag :skip
+  test "JSON-LD keywords are parsed correctly" do
+    keywords = [
+      "base",
+      "container",
+      "context",
+      "direction",
+      "graph",
+      "id",
+      "import",
+      "included",
+      "index",
+      "json",
+      "language",
+      "list",
+      "nest",
+      "none",
+      "prefix",
+      "propagate",
+      "protected",
+      "reverse",
+      "set",
+      "type",
+      "value",
+      "version",
+      "vocab"
+    ]
+
+    for keyword <- keywords do
+      key_string = ~s("@#{keyword}")
+      tokens = JsonLexer.lex(~s({#{key_string}: ""}))
+
+      assert length(tokens) == 6
+      assert {:name_decorator, _, x} = Enum.at(tokens, 1)
+      assert key_string == to_string(x)
+    end
+  end
+
+  # TODO: Remove when there's no JSON-LD support planned
+  test "JSON-LD non-keywords are parsed correctly" do
+    examples = ["@bogus", "@bases", "container"]
+
+    for example <- examples do
+      key_string = ~s("@#{example}")
+      tokens = JsonLexer.lex(~s({#{key_string}: ""}))
+
+      assert length(tokens) == 6
+      assert {:name_tag, _, x} = Enum.at(tokens, 1)
+      assert key_string == to_string(x)
+    end
+  end
 end
