@@ -105,7 +105,7 @@ defmodule Makeup.Lexers.JsonLexer do
     |> concat(multiple_lines)
     |> token(:comment_multiline)
 
-  multi_line_comment_end = string("*/") |> token(:comment_multiline)
+  multi_line_comment_end = string("*/") |> token(:comment_multiline_end)
 
   keyword_constants =
     word_from_list(
@@ -181,14 +181,37 @@ defmodule Makeup.Lexers.JsonLexer do
     [{:number_integer, %{language: :json}, first <> second} | postprocess_helper(tokens)]
   end
 
-  defp postprocess_helper([{:comment_multiline, %{language: :json}, "*/"} = token | tokens]),
-    do: [token | postprocess_helper(tokens)]
+  defp postprocess_helper([{:comment_multiline_end, %{language: :json}, "*/"} = token | tokens])
+    do 
+    token = {:error, %{language: :json}, "*/"}
+    [token | postprocess_helper(tokens)]
+  end
 
-  defp postprocess_helper([{:comment_multiline, %{language: :json}, str_list} | tokens]) do
+  # defp postprocess_helper([{:comment_multiline, %{language: :json}, "/*"} = token | tokens]) do
+  #   token = {:error, %{language: :json}, "/*"}
+  #   [token | postprocess_helper(tokens)]
+  # end
+
+  defp postprocess_helper([{:comment_multiline, %{language: :json}, maybe_str_list} | tokens]) do
+    {no_closing_tag?, next_token, tokens} = 
+      if Enum.empty?(tokens) do
+       {true, nil, tokens}
+      else
+        [next_token | remaining_tokens] = tokens
+        {next_token_type, _, _} = next_token
+        no_closing_tag? = next_token_type != :comment_multiline_end
+        {no_closing_tag?, next_token, remaining_tokens}
+      end
+    str_list = List.wrap(maybe_str_list)
     {curr, comment_tokens} =
       Enum.reduce(str_list, {"", []}, fn x, {curr, comment_tokens} ->
         if x in ["\n", "\r"] do
-          curr_token = {:comment_multiline, %{language: :json}, curr}
+          curr_token = 
+            if no_closing_tag? do
+              {:error, %{language: :json}, curr}
+            else
+              {:comment_multiline, %{language: :json}, curr}
+            end
           newline_token = {:whitespace, %{language: :json}, x}
           comment_tokens = comment_tokens ++ [curr_token, newline_token]
           {"", comment_tokens}
@@ -197,9 +220,17 @@ defmodule Makeup.Lexers.JsonLexer do
           {curr, comment_tokens}
         end
       end)
-
-    curr_token = {:comment_multiline, %{language: :json}, curr}
-    comment_tokens = comment_tokens ++ [curr_token]
+    comment_tokens = 
+      if no_closing_tag? do
+        curr_token = {:error, %{language: :json}, curr}
+        comment_tokens ++ [curr_token]
+      else
+        # curr_token = {:comment_multiline, %{language: :json}, curr}
+        # comment_end_token = {:comment_multiline, %{language: :json}, "*/"}
+        # comment_tokens ++ [curr_token, comment_end_token]
+        curr_token = {:comment_multiline, %{language: :json}, curr <> "*/"}
+        comment_tokens ++ [curr_token]
+      end
     comment_tokens ++ postprocess_helper(tokens)
   end
 
