@@ -1,20 +1,36 @@
 defmodule MakeupJson.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
+  @url "https://github.com/elixir-makeup/makeup_json"
+
   def project do
     [
       app: :makeup_json,
-      version: "0.1.0",
-      elixir: "~> 1.13",
+      version: @version,
+      elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      package: package(),
+      description: "JSON lexer for makeup"
+    ]
+  end
+
+  defp package do
+    [
+      name: :makeup_json,
+      licenses: ["BSD"],
+      maintainers: ["Kartheek L"],
+      links: %{"GitHub" => @url}
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {Makeup.Lexers.JsonLexer.Application, []}
     ]
   end
 
@@ -22,12 +38,7 @@ defmodule MakeupJson.MixProject do
   defp deps do
     [
       {:makeup, "~> 1.0"},
-      {:nimble_parsec, "~> 1.1"},
-      # Generate unicode character lists
-      {:unicode_set, "~> 1.1.0", only: :dev},
-      # Benchmarking utilities
-      {:benchee, "~> 1.0", only: :dev},
-      {:benchee_markdown, "~> 0.2", only: :dev}
+      {:nimble_parsec, "~> 1.1"}
     ]
   end
 end
