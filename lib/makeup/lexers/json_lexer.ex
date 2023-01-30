@@ -187,11 +187,6 @@ defmodule Makeup.Lexers.JsonLexer do
     [token | postprocess_helper(tokens)]
   end
 
-  # defp postprocess_helper([{:comment_multiline, %{language: :json}, "/*"} = token | tokens]) do
-  #   token = {:error, %{language: :json}, "/*"}
-  #   [token | postprocess_helper(tokens)]
-  # end
-
   defp postprocess_helper([{:comment_multiline, %{language: :json}, maybe_str_list} | tokens]) do
     {no_closing_tag?, next_token, tokens} = 
       if Enum.empty?(tokens) do
