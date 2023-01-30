@@ -38,7 +38,9 @@ defmodule MakeupJson.MixProject do
   defp deps do
     [
       {:makeup, "~> 1.0"},
-      {:nimble_parsec, "~> 1.1"}
+      {:nimble_parsec, "~> 1.1"},
+      # Docs
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
     ]
   end
 end
