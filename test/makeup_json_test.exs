@@ -175,24 +175,13 @@ defmodule MakeupJsonTest do
   test "Multi-line comments are tokenized correctly" do
     text = ~s(/** / **/{"a /**/ b"/* \n */:123})
     tokens = JsonLexer.lex(text)
-
-    assert {:comment_multiline, _, "/** / *"} = Enum.at(tokens, 0)
-    assert {:comment_multiline, _, "*/"} = Enum.at(tokens, 1)
-    assert {:comment_multiline, _, "/* "} = Enum.at(tokens, 4)
-    assert {:comment_multiline, _, " "} = Enum.at(tokens, 6)
-    assert {:comment_multiline, _, "*/"} = Enum.at(tokens, 7)
+    assert {:comment_multiline, _, "/** / **/"} = Enum.at(tokens, 0)
+    assert {:comment_multiline, _, "/* "} = Enum.at(tokens, 3)
+    assert {:whitespace, %{language: :json}, "\n"} = Enum.at(tokens, 4)
+    assert {:comment_multiline, %{language: :json}, " */"} = Enum.at(tokens, 5)
 
     assert tokens |> Enum.filter(fn {type, _, _} -> type == :comment_multiline end) |> length() ==
-             5
-
-    # TODO: What those probably should be(?):
-    # https://github.com/pygments/pygments/blob/master/tests/test_data.py#L179
-    #
-    # assert {:comment_multiline, _, "/** / **/"} = Enum.at(tokens, 0)
-    # assert {:comment_multiline, _, "/* \n */"} = Enum.at(tokens, 3)
-    # assert tokens |> Enum.filter(fn {type, _, _} -> type == :comment_multiline end) |> length() == 2
-
-    # Input and output texts must match!
+             3
     assert tokens |> Enum.map(fn {_, _, content} -> to_string(content) end) |> Enum.join() == text
   end
 
@@ -203,8 +192,6 @@ defmodule MakeupJsonTest do
     assert [_string, {:error, _, ?/}] = JsonLexer.lex("\"\"/")
   end
 
-  # TODO:
-  @tag :skip
   test "Unfinished or unclosed multi-line comments are parsed as errors" do
     assert [{:error, _, _}] = JsonLexer.lex("/*")
     assert [{:error, _, _}] = JsonLexer.lex("/**")
