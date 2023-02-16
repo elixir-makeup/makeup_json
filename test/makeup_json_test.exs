@@ -4,46 +4,74 @@ defmodule MakeupJsonTest do
 
   describe "Expected Token Types" do
     test "Integers" do
-      assert [{:number_integer, _, _}] = JsonLexer.lex("0")
-      assert [{:number_integer, _, _}] = JsonLexer.lex("-1")
-      assert [{:number_integer, _, _}] = JsonLexer.lex("1234567890")
-      assert [{:number_integer, _, _}] = JsonLexer.lex("-1234567890")
+      [{type, _, _}] = JsonLexer.lex("0")
+      assert type == :number_integer
+      [{type, _, _}] = JsonLexer.lex("-1")
+      assert type == :number_integer
+      [{type, _, _}] = JsonLexer.lex("1234567890")
+      assert type == :number_integer
+      [{type, _, _}] = JsonLexer.lex("-1234567890")
+      assert type == :number_integer
     end
 
     test "Floats, including scientific notation" do
-      assert [{:number_float, _, _}] = JsonLexer.lex("123456789.0123456789")
-      assert [{:number_float, _, _}] = JsonLexer.lex("-123456789.0123456789")
-      assert [{:number_float, _, _}] = JsonLexer.lex("1e10")
-      assert [{:number_float, _, _}] = JsonLexer.lex("-1E10")
-      assert [{:number_float, _, _}] = JsonLexer.lex("1e-10")
-      assert [{:number_float, _, _}] = JsonLexer.lex("-1E+10")
-      assert [{:number_float, _, _}] = JsonLexer.lex("1.0e10")
-      assert [{:number_float, _, _}] = JsonLexer.lex("-1.0E10")
-      assert [{:number_float, _, _}] = JsonLexer.lex("1.0e-10")
-      assert [{:number_float, _, _}] = JsonLexer.lex("-1.0E+10")
+      [{type, _, _}] = JsonLexer.lex("123456789.0123456789")
+      assert type == :number_float
+      [{type, _, _}] = JsonLexer.lex("-123456789.0123456789")
+      assert type == :number_float
+      [{type, _, _}] = JsonLexer.lex("1e10")
+      assert type == :number_float
+      [{type, _, _}] = JsonLexer.lex("-1E10")
+      assert type == :number_float
+      [{type, _, _}] = JsonLexer.lex("1e-10")
+      assert type == :number_float
+      [{type, _, _}] = JsonLexer.lex("-1E+10")
+      assert type == :number_float
+      [{type, _, _}] = JsonLexer.lex("1.0e10")
+      assert type == :number_float
+      [{type, _, _}] = JsonLexer.lex("-1.0E10")
+      assert type == :number_float
+      [{type, _, _}] = JsonLexer.lex("1.0e-10")
+      assert type == :number_float
+      [{type, _, _}] = JsonLexer.lex("-1.0E+10")
+      assert type == :number_float
     end
 
     test "Strings (escapes are tested elsewhere)" do
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s{""})
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s{"abc"})
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s{"ひらがな"})
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s{"123"})
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s{"[]"})
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s("{}"))
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s{"true"})
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s{"false"})
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s{"null"})
-      assert [{:string_double, _, _}] = JsonLexer.lex(~s{":,\"})
+      [{type, _, _}] = JsonLexer.lex(~s{""})
+      assert type == :string_double
+      [{type, _, _}] = JsonLexer.lex(~s{"abc"})
+      assert type == :string_double
+      [{type, _, _}] = JsonLexer.lex(~s{"ひらがな"})
+      assert type == :string_double
+      [{type, _, _}] = JsonLexer.lex(~s{"123"})
+      assert type == :string_double
+      [{type, _, _}] = JsonLexer.lex(~s{"[]"})
+      assert type == :string_double
+      [{type, _, _}] = JsonLexer.lex(~s("{}"))
+      assert type == :string_double
+      [{type, _, _}] = JsonLexer.lex(~s{"true"})
+      assert type == :string_double
+      [{type, _, _}] = JsonLexer.lex(~s{"false"})
+      assert type == :string_double
+      [{type, _, _}] = JsonLexer.lex(~s{"null"})
+      assert type == :string_double
+      [{type, _, _}] = JsonLexer.lex(~s{":,\"})
+      assert type == :string_double
     end
 
     test "Constants" do
-      assert [{:keyword_constant, _, _}] = JsonLexer.lex("true")
-      assert [{:keyword_constant, _, _}] = JsonLexer.lex("false")
-      assert [{:keyword_constant, _, _}] = JsonLexer.lex("null")
+      [{type, _, _}] = JsonLexer.lex("true")
+      assert type == :keyword_constant
+      [{type, _, _}] = JsonLexer.lex("false")
+      assert type == :keyword_constant
+      [{type, _, _}] = JsonLexer.lex("null")
+      assert type == :keyword_constant
     end
 
     test "Arrays" do
-      assert [{:punctuation, _, _}, {:punctuation, _, _}] = JsonLexer.lex("[]")
+      [{type, _, _}, {type, _, _}] = JsonLexer.lex("[]")
+      assert type == :punctuation
 
       types =
         JsonLexer.lex(~s{["a", "b"]})
@@ -60,7 +88,8 @@ defmodule MakeupJsonTest do
     end
 
     test "Objects" do
-      assert [{:punctuation, _, _}, {:punctuation, _, _}] = JsonLexer.lex("{}")
+      [{type, _, _}, {type, _, _}] = JsonLexer.lex("{}")
+      assert type == :punctuation
 
       types =
         JsonLexer.lex(~s({"a": "b"}))
@@ -78,20 +107,28 @@ defmodule MakeupJsonTest do
 
     test "Whitespace" do
       # space
-      assert [{:whitespace, _, _}] = JsonLexer.lex("\u0020")
-      assert [{:whitespace, _, _}] = JsonLexer.lex("\u0020\u0020 ")
+      [{type, _, _}] = JsonLexer.lex("\u0020")
+      assert type == :whitespace
+      [{type, _, _}] = JsonLexer.lex("\u0020\u0020 ")
+      assert type == :whitespace
 
       # newline
-      assert [{:whitespace, _, _}] = JsonLexer.lex("\u000a")
-      assert [{:whitespace, _, _}] = JsonLexer.lex("\u000a\u000a ")
+      [{type, _, _}] = JsonLexer.lex("\u000a")
+      assert type == :whitespace
+      [{type, _, _}] = JsonLexer.lex("\u000a\u000a ")
+      assert type == :whitespace
 
       # carriage return
-      assert [{:whitespace, _, _}] = JsonLexer.lex("\u000d")
-      assert [{:whitespace, _, _}] = JsonLexer.lex("\u000d\u000d ")
+      [{type, _, _}] = JsonLexer.lex("\u000d")
+      assert type == :whitespace
+      [{type, _, _}] = JsonLexer.lex("\u000d\u000d ")
+      assert type == :whitespace
 
       # tab
-      assert [{:whitespace, _, _}] = JsonLexer.lex("\u0009")
-      assert [{:whitespace, _, _}] = JsonLexer.lex("\u0009\u0009 ")
+      [{type, _, _}] = JsonLexer.lex("\u0009")
+      assert type == :whitespace
+      [{type, _, _}] = JsonLexer.lex("\u0009\u0009 ")
+      assert type == :whitespace
     end
   end
 
