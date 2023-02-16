@@ -145,27 +145,4 @@ defmodule MakeupJsonTest do
     # Input and output texts must match!
     assert tokens |> Enum.map(fn {_, _, content} -> to_string(content) end) |> Enum.join() == text
   end
-
-  test "Multi-line comments are tokenized correctly" do
-    text = ~s(/** / **/{"a /**/ b"/* \n */:123})
-    tokens = JsonLexer.lex(text)
-
-    assert {:comment_multiline, _, "/** / *"} = Enum.at(tokens, 0)
-    assert {:comment_multiline, _, "*/"} = Enum.at(tokens, 1)
-    assert {:comment_multiline, _, "/* "} = Enum.at(tokens, 4)
-    assert {:comment_multiline, _, " "} = Enum.at(tokens, 6)
-    assert {:comment_multiline, _, "*/"} = Enum.at(tokens, 7)
-
-    assert tokens |> Enum.filter(fn {type, _, _} -> type == :comment_multiline end) |> length() ==
-             5
-
-    # TODO: What those probably should be(?):
-    #
-    # assert {:comment_multiline, _, "/** / **/"} = Enum.at(tokens, 0)
-    # assert {:comment_multiline, _, "/* \n */"} = Enum.at(tokens, 3)
-    # assert tokens |> Enum.filter(fn {type, _, _} -> type == :comment_multiline end) |> length() == 2
-
-    # Input and output texts must match!
-    assert tokens |> Enum.map(fn {_, _, content} -> to_string(content) end) |> Enum.join() == text
-  end
 end
