@@ -5,8 +5,6 @@ defmodule Makeup.Lexers.JsonLexer do
 
   @behaviour Makeup.Lexer
 
-  @known_whitespace_characters [?\r, ?\s, ?\n, ?\f, ?\t]
-
   # Note: Makeup.Lexers.JsonLexer lexer is derived from Makeup.Lexers.ElixirLexer. 
   # It contains code from Makeup.Lexers.ElixirLexer
 
@@ -14,11 +12,11 @@ defmodule Makeup.Lexers.JsonLexer do
   # Step #1: tokenize the input (into a list of tokens)
   ###################################################################
 
-  whitespace = ascii_string(@known_whitespace_characters, min: 1) |> token(:whitespace)
+  whitespace = ascii_string([?\r, ?\s, ?\n, ?\f], min: 1) |> token(:whitespace)
 
   newlines =
     choice([string("\r\n"), string("\n")])
-    |> optional(ascii_string(@known_whitespace_characters, min: 1))
+    |> optional(ascii_string([?\s, ?\n, ?\f, ?\r], min: 1))
     |> token(:whitespace)
 
   any_char = utf8_char([]) |> token(:error)

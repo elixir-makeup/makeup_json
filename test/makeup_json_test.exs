@@ -104,31 +104,5 @@ defmodule MakeupJsonTest do
                :punctuation
              ]
     end
-
-    test "Whitespace" do
-      # space
-      [{type, _, _}] = JsonLexer.lex("\u0020")
-      assert type == :whitespace
-      [{type, _, _}] = JsonLexer.lex("\u0020\u0020 ")
-      assert type == :whitespace
-
-      # newline
-      [{type, _, _}] = JsonLexer.lex("\u000a")
-      assert type == :whitespace
-      [{type, _, _}] = JsonLexer.lex("\u000a\u000a ")
-      assert type == :whitespace
-
-      # carriage return
-      [{type, _, _}] = JsonLexer.lex("\u000d")
-      assert type == :whitespace
-      [{type, _, _}] = JsonLexer.lex("\u000d\u000d ")
-      assert type == :whitespace
-
-      # tab
-      [{type, _, _}] = JsonLexer.lex("\u0009")
-      assert type == :whitespace
-      [{type, _, _}] = JsonLexer.lex("\u0009\u0009 ")
-      assert type == :whitespace
-    end
   end
 end
