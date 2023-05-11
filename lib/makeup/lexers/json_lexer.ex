@@ -16,7 +16,7 @@ defmodule Makeup.Lexers.JsonLexer do
 
   whitespace = ascii_string(@known_whitespace_characters, min: 1) |> token(:whitespace)
 
-  newlines =
+  _newlines =
     choice([string("\r\n"), string("\n")])
     |> optional(ascii_string(@known_whitespace_characters, min: 1))
     |> token(:whitespace)
