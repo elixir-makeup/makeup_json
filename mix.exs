@@ -20,7 +20,7 @@ defmodule MakeupJson.MixProject do
   defp package do
     [
       name: :makeup_json,
-      licenses: ["BSD"],
+      licenses: ["BSD-2-Clause"],
       maintainers: ["Kartheek L"],
       links: %{"GitHub" => @url}
     ]
