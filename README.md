@@ -1,6 +1,6 @@
 # MakeupJson
 
-A [Makeup](https://github.com/elixir-makeup/makeup/) lexer for the JSON language.
+A [Makeup](https://github.com/elixir-makeup/makeup/) lexer for the JSON format.
 
 ## Installation
 
@@ -10,7 +10,7 @@ by adding `makeup_json` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:makeup_json, "~> 0.1.0"}
+    {:makeup_json, "~> 1.0"}
   ]
 end
 ```
