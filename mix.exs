@@ -2,7 +2,6 @@ defmodule MakeupJson.MixProject do
   use Mix.Project
 
   @version "0.1.1"
-
   @url "https://github.com/elixir-makeup/makeup_json"
 
   def project do
@@ -13,6 +12,7 @@ defmodule MakeupJson.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
+      docs: [main: "Makeup.Lexers.JsonLexer", source_url: @url],
       description: "JSON lexer for makeup"
     ]
   end
