@@ -12,7 +12,10 @@ defmodule MakeupJson.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
-      docs: [main: "Makeup.Lexers.JsonLexer", source_url: @url],
+      docs: [
+        main: "readme",
+        extras: ["README.md"]
+      ],
       description: "JSON lexer for makeup"
     ]
   end
