@@ -182,6 +182,7 @@ defmodule MakeupJsonTest do
 
     assert tokens |> Enum.filter(fn {type, _, _} -> type == :comment_multiline end) |> length() ==
              3
+
     assert tokens |> Enum.map(fn {_, _, content} -> to_string(content) end) |> Enum.join() == text
   end
 
